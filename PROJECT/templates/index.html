@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Book Recommender</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
+	<style>
+		body{font-family:Lato,'Helvetica Neue',Helvetica,Arial,sans-serif;}
+		h1,h2,h3,h4,h5,h6{font-family:Lato,'Helvetica Neue',Helvetica,Arial,sans-serif;font-weight:700;}
+		.title{color:#273582;}
+		#fetch{cursor:pointer;}
+		#stopfetch{cursor:pointer;}
+		#fetch:hover,#fetch:active,#fetch:focus,#stopfetch:hover,#stopfetch:active,#stopfetch:focus{background-color:#ff7f00;border-color:#ff7f00;}
+		footer.footer{padding-top:1rem;padding-bottom:1rem;background-color: #e3e8ed!important;}
+		footer a{color:#000;font-weight:600;text-decoration:none;}
+		footer li a:hover{color:orange;}
+		footer li i{color:#363e75;}
+		footer li i:hover{color:orange;}
+		.navbar-light .navbar-brand{color: rgba(0,0,0,.9);}
+		.navbar-light .navbar-brand {margin-left: auto;margin-right: auto;}
+		.container-fluid{width:90%;}
+		.load{
+			height:100%;
+			background-color:#ffffffbe;
+			position:absolute;
+			width:100%;
+			z-index:1000;
+			display:none;
+		}
+		.loader {
+		  border: 10px solid #f3f3f3;
+		  border-radius: 50%;
+		  border-top: 10px solid #3498db;
+		  width: 30px;
+		  height: 30px;
+		  margin-left:auto;
+		  margin-right:auto;
+		  margin-top:30%;
+		  -webkit-animation: spin 2s linear infinite; /* Safari */
+		  animation: spin 2s linear infinite;
+		}
+
+		/* Safari */
+		@-webkit-keyframes spin {
+		  0% { -webkit-transform: rotate(0deg); }
+		  100% { -webkit-transform: rotate(360deg); }
+		}
+
+		@keyframes spin {
+		  0% { transform: rotate(0deg); }
+		  100% { transform: rotate(360deg); }
+		}
+
+		@media (min-width:768px){
+			header.masthead{
+				padding-top:4rem;
+				padding-bottom:4rem;
+			}
+			header.masthead h1{
+				font-size:3rem;
+			}
+		}
+		.res-container{}
+		.result-box{width:80%;margin-left:auto;margin-right:auto;height: 260px;padding:10px;overflow-y: auto;}
+		#loading {
+			position: fixed;
+			left: 0px;
+			top: 0px;
+			width: 100%;
+			height: 100%;
+			z-index: 9999999999;
+			overflow: hidden;
+			background: rgba(255, 255, 255, 0.7);
+		}
+		.loader {
+			border: 8px solid #f3f3f3;
+			border-top: 8px solid #363e75;
+			border-radius: 50%;
+			width: 60px;
+			height: 60px;
+			left: 50%;
+			margin-left: -4em;
+			display: block;
+			animation: spin 2s linear infinite;
+		}
+		.loader,
+		.loader:after {
+			display: block;
+			position: absolute;
+			top: 50%;
+			margin-top: -4.05em;
+		}
+		@keyframes spin {
+			0% {
+				transform: rotate(0deg);
+			}
+			100% {
+				transform: rotate(360deg);
+			}
+		}
+		.footer{position:absolute;bottom:0px;width:100%;}
+		#datafetch_form{padding:0px 40px;}
+		.json-result{}
+		.result-box p{text-align:left;}
+	</style>
+
+	<script>
+		var book = [];
+		var distinct_gen = [];
+		var distinct_subgen = [];
+		{% for book in books %}
+			var tmp = {}
+			tmp.id = '{{book.id}}';
+			tmp.gen = '{{book.genre}}';
+			tmp.subgen = '{{book.subgenre}}'
+			tmp.title = '{{book.title}}'
+			tmp.author = '{{book.author}}'
+			tmp.publisher = '{{book.publisher}}'
+			book.push(tmp);
+			if(!distinct_gen.includes('{{book.genre}}'))
+				distinct_gen.push('{{book.genre}}');
+		{% endfor %}
+
+		function setSubgenreSelect(){
+			$('#subgenSelect').empty();
+			$('#subgenSelect').append($("<option></option>").attr("value", "").text("Select Subgenre"));
+			var tmp = [];
+			for(var i=0;i<book.length ; i++){
+				if($('#genSelect').val() == book[i].gen){
+					if(!tmp.includes(book[i].subgen))
+					tmp.push(book[i].subgen);
+				}
+			}
+			for(var i=0 ; i<tmp.length ; i++){
+				$('#subgenSelect').append($("<option></option>").attr("value", tmp[i]).text(tmp[i]));
+			}
+		}
+
+		function setTitleSelect(){
+			$('#titleSelect').empty();
+			$('#titleSelect').append($("<option></option>").attr("value", "").text("Select Book Title"));
+			for(var i=0;i<book.length ; i++){
+				if($('#subgenSelect').val() == book[i].subgen){
+					$('#titleSelect').append($("<option></option>").attr("value", book[i].title).text(book[i].title));
+				}
+			}
+		}
+	</script>
+</head>
+
+<body>
+
+	<!-- Navigation -->
+	<nav class="navbar navbar-light bg-light static-top">
+		<div class="container-fluid">
+			<h1>Book Recommender System</h1>
+		</div>
+	</nav>
+
+	<!-- Testimonials -->
+	<section class="testimonials text-center">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-md-4 col-xs-12">
+					<br/>
+						<div class="form-group files color">
+							<select onchange="setSubgenreSelect()" id="genSelect" class="form-control">
+							</select><br />
+							<select onchange="setTitleSelect()" id="subgenSelect" class="form-control">
+								<option>Select Subgenre</option>
+							</select><br />
+							<select id="titleSelect" class="form-control">
+								<option>Select Book Title</option>
+							</select>
+						<br />
+						<div class=""><button class="form-control btn-primary" id="recommendBtn">Recommend!</button></div>
+						</div>
+				</div>
+				<div class="res-container  col-md-8 col-xs-12">
+					<div class="result-box shadow rounded-lg">
+						<h6 class="title">Recommended Books</h6>
+						<hr />
+						<div class="json-result">
+							<table id="result" border = "1" cellpadding="5">
+								<thead>
+									<tr>
+										<th>Title</th>
+										<th>Genre</th>
+										<th>Sub Genre</th>
+										<th>Author</th>
+										<th>Publisher</th>
+									</tr>
+								</thead>
+								<tbody id="result_tbody">
+
+								</tbody>
+								{% for book in books %}
+
+								 		{{book.title}}
+										{{book.genre}}
+										{{book.subgenre}}
+										{{book.author}}
+										{{book.publisher}}
+
+								{% endfor %}
+
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- Footer -->
+	<footer class="footer">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-lg-6 h-100 text-center my-auto mx-auto">
+					<ul class="list-inline mb-1">
+						<li class="list-inline-item"><a href="https://ineuron.ai/home/about-us/">About</a></li>
+						<li class="list-inline-item">&sdot;</li>
+						<li class="list-inline-item"><a href="https://ux.ineuron.ai/connect.php">Contact</a></li>
+						<li class="list-inline-item">&sdot;</li>
+						<li class="list-inline-item"><a href="https://ineuron.ai/privacy.html">Privacy Policy</a></li>
+					</ul>
+					<p class="text-muted small mb-2 mb-lg-0">&copy; iNeuron.ai 2020. All Rights Reserved.</p>
+				</div>
+			</div>
+		</div>
+	</footer>
+
+
+	<div id="loading"><div class="loader"></div></div>
+	<!-- Bootstrap core JavaScript -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+	<script>
+		$(document).ready(function(){
+			$('#loading').hide();
+
+			$('#recommendBtn').click(function(){
+				$('#loading').show();
+				var data = {"book_title" : $('#titleSelect').val()};
+				$.ajax({
+					url: "recommend",
+					method: "post",
+					data : data,
+				 	success: function(result){
+						$('#result_tbody').empty();
+						for(var i=0 ; i<result.length ; i++){
+							for(var j=0 ; j<book.length; j++){
+								if(book[j].id == result[i]){
+									 row = $('<tr><td>'+book[j].title+'</td><td>'+book[j].gen+'</td><td>'+book[j].subgen+'</td><td>'+book[j].author+'</td><td>'+book[j].publisher+'</td></tr>'); //create row
+								     $('#result_tbody').append(row);
+								}
+							}
+						}
+						$('#loading').hide();
+	  				},
+	  				error: function(){
+						alert("Error!");
+	  				},
+	  				complete: function(){
+						$('#loading').hide();
+	  				}
+	  			});
+			});
+		});
+
+		$('#genSelect').append($("<option></option>").attr("value", "").text("Select Genre"));
+		for(var i =0 ; i<distinct_gen.length ; i++){
+			$('#genSelect').append($("<option></option>").attr("value", distinct_gen[i]).text(distinct_gen[i]));
+		}
+
+	</script>
+</body>
+
+</html>
