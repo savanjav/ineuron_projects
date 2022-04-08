@@ -13,7 +13,7 @@
 		#fetch{cursor:pointer;}
 		#stopfetch{cursor:pointer;}
 		#fetch:hover,#fetch:active,#fetch:focus,#stopfetch:hover,#stopfetch:active,#stopfetch:focus{background-color:#ff7f00;border-color:#ff7f00;}
-		footer.footer{padding-top:1rem;padding-bottom:1rem;background-color: #e3e8ed!important;}
+		footer.footer{padding-top:1rem;padding-bottom:1rem;background-color: #e3e8ed!important;position:relative;}
 		footer a{color:#000;font-weight:600;text-decoration:none;}
 		footer li a:hover{color:orange;}
 		footer li i{color:#363e75;}
@@ -104,6 +104,8 @@
 		#datafetch_form{padding:0px 40px;}
 		.json-result{}
 		.result-box p{text-align:left;}
+		#linkdin{margin-top:-11px;margin-left:11px;}
+
 	</style>
 
 	<script>
@@ -213,21 +215,13 @@
 			</div>
 		</div>
 	</section>
-
+	<br /><br />
 	<!-- Footer -->
 	<footer class="footer">
 		<div class="container-fluid">
 			<div class="row">
-				<div class="col-lg-6 h-100 text-center my-auto mx-auto">
-					<ul class="list-inline mb-1">
-						<li class="list-inline-item"><a href="https://ineuron.ai/home/about-us/">About</a></li>
-						<li class="list-inline-item">&sdot;</li>
-						<li class="list-inline-item"><a href="https://ux.ineuron.ai/connect.php">Contact</a></li>
-						<li class="list-inline-item">&sdot;</li>
-						<li class="list-inline-item"><a href="https://ineuron.ai/privacy.html">Privacy Policy</a></li>
-					</ul>
-					<p class="text-muted small mb-2 mb-lg-0">&copy; iNeuron.ai 2020. All Rights Reserved.</p>
-				</div>
+				<b>Design by : Savan Javia</b> &nbsp;
+				<a href="https://www.linkedin.com/in/savan-javiya/" target="_blank"><img id="linkdin" src="{{url_for('static', filename='linkdin.png')}}" width="70" align="middle" /></a>
 			</div>
 		</div>
 	</footer>
