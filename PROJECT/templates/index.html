@@ -145,7 +145,9 @@
 			$('#titleSelect').append($("<option></option>").attr("value", "").text("Select Book Title"));
 			for(var i=0;i<book.length ; i++){
 				if($('#subgenSelect').val() == book[i].subgen){
-					$('#titleSelect').append($("<option></option>").attr("value", book[i].title).text(book[i].title));
+					var encodedStr = book[i].title
+					var decoded = $("<div/>").html(encodedStr).text();
+					$('#titleSelect').append($("<option></option>").attr("value", decoded).text(decoded));
 				}
 			}
 		}
