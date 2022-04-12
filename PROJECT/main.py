@@ -6,8 +6,9 @@ from flask import jsonify
 
 from werkzeug.utils import secure_filename
 from db import database
-import train as t
-import recommend as rec
+import Train as t
+import Recommend as rec
+from AppLogger import AppLogger
 
 app = Flask(__name__)
 
@@ -16,8 +17,6 @@ app = Flask(__name__)
 def home():
     db_session = database.CassandraConnect.conn()
     row = db_session.execute("select * from books.books_details")
-    l = rec.Recommend.recommend('Data Smart')
-    print(l)
     return render_template('index.html', books=row)
 
 
@@ -28,27 +27,31 @@ def admin():
 
 @app.route('/uploader', methods=['GET', 'POST'])
 def upload_file():
-    db_session = database.CassandraConnect.conn()
-    if request.method == 'POST':
-        f = request.files['bookCsv']
-        split_tup = os.path.splitext(f.filename)
+    logger = AppLogger('Main')
+    logger.log("training start")
+    try:
+        db_session = database.CassandraConnect.conn()
+        if request.method == 'POST':
+            f = request.files['bookCsv']
+            split_tup = os.path.splitext(f.filename)
 
-        if split_tup[1] == '.csv':
-            f.save(secure_filename(f.filename))
-            df = pd.read_csv(f.filename)
-            df.fillna('', inplace=True)
-            delete = db_session.execute("TRUNCATE books.books_details;")
-            insert = "INSERT INTO books.books_details (id,Title,Author,Genre,SubGenre, Publisher) VALUES(?,?,?,?,?,?)"
-            prepared = db_session.prepare(insert)
-            for ind in df.index:
-                db_session.execute(prepared, (
-                ind, df.at[ind, 'Title'], df.at[ind, 'Author'], df.at[ind, 'Genre'], df.at[ind, 'SubGenre'],
-                df.at[ind, 'Publisher']))
-            os.remove(f.filename)
-            return redirect(url_for("admin", status='true'))
-        else:
-            return redirect(url_for("admin", status='false'))
-
+            if split_tup[1] == '.csv':
+                f.save(secure_filename(f.filename))
+                df = pd.read_csv(f.filename)
+                df.fillna('', inplace=True)
+                delete = db_session.execute("TRUNCATE books.books_details;")
+                insert = "INSERT INTO books.books_details (id,Title,Author,Genre,SubGenre, Publisher) VALUES(?,?,?,?,?,?)"
+                prepared = db_session.prepare(insert)
+                for ind in df.index:
+                    db_session.execute(prepared, (
+                    ind, df.at[ind, 'Title'], df.at[ind, 'Author'], df.at[ind, 'Genre'], df.at[ind, 'SubGenre'],
+                    df.at[ind, 'Publisher']))
+                os.remove(f.filename)
+                return redirect(url_for("admin", status='true'))
+            else:
+                return redirect(url_for("admin", status='false'))
+    except Exception as e:
+        logger.error(e)
 
 @app.route("/train", methods=['POST'])
 def train():
