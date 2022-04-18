@@ -107,12 +107,13 @@
 	</style>
 
 	<script>
-		if({{request.args['status']}} == true)
+		status = {{status}}
+		console.log({{status}});
+		if(status == 1)
 			alert('Success!');
-		else
+		else if(status == 2)
 			alert('Please upload csv file.');
-
-		if({{request.args['train']}} == true)
+		else if(status == 3)
 			alert('Train complete!');
 
 	</script>
