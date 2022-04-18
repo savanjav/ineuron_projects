@@ -47,9 +47,11 @@ def upload_file():
                     ind, df.at[ind, 'Title'], df.at[ind, 'Author'], df.at[ind, 'Genre'], df.at[ind, 'SubGenre'],
                     df.at[ind, 'Publisher']))
                 os.remove(f.filename)
-                return redirect(url_for("admin", status='true'))
+                #return redirect(url_for("admin", status='true'))
+                return render_template('admin.html', status='1')
             else:
-                return redirect(url_for("admin", status='false'))
+                #return redirect(url_for("admin", status='false'))
+                return render_template('admin.html', status='2')
     except Exception as e:
         logger.error(e)
 
@@ -57,7 +59,9 @@ def upload_file():
 def train():
     trainModal = t.Train()
     trainModal.train()
-    return redirect(url_for('admin', train='true'))
+    #return redirect(url_for('admin', train='true'))
+    return render_template('admin.html', status='3')
+
 
 @app.route("/recommend", methods=['POST'])
 def recommend():
